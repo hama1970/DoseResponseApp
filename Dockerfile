@@ -1,4 +1,4 @@
-# Python 3.11/3.12 が安定（3.13はSciPy等が未対応）
+CMD ["sh", "-c", "streamlit run dose_response_app_v11.py --server.port $PORT --server.address 0.0.0.0"]
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
