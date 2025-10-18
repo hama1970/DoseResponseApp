@@ -1,25 +1,23 @@
-# ---- 固定したい Python を選ぶ（例: 3.11）----
+# Python 3.11/3.12 が安定（3.13はSciPy等が未対応）
 FROM python:3.11-slim
 
-# 推奨の環境設定
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
+ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
+
+# フォント（Matplotlib用）とビルド基本ツール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fonts-dejavu build-essential && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# 依存のビルドに最低限あると安心なパッケージ
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
- && rm -rf /var/lib/apt/lists/*
-
-# Python 依存をインストール
+# 依存関係を先に入れてレイヤーをキャッシュ
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN python -m pip install -U pip setuptools wheel && \
+    pip install -r requirements.txt
 
 # アプリ本体
-COPY . .
+COPY dose_response_app_v11.py .
 
-# Render は実行時に $PORT をセットするのでそれを使って起動
-# JSON 形式の CMD だと $PORT 展開されないため bash -lc で包みます
-CMD ["bash", "-lc", "streamlit run dose_response_app_v11.py --server.address=0.0.0.0 --server.port=$PORT --browser.gatherUsageStats=false"]
+EXPOSE 7860
+CMD ["streamlit", "run", "dose_response_app_v11.py", "--server.port", "${PORT}", "--server.address", "0.0.0.0"]
