@@ -18,7 +18,6 @@ except Exception:
     pass
 
 plt.rcParams.update({
-    "font.family": "DejaVu Sans",
     "font.size": 10,
     "axes.labelsize": 12,
     "axes.titlesize": 14,
